@@ -19,12 +19,21 @@ function PlantPage() {
       })
       .then(data => {
         console.log(data)
-        setPlants(data)
+        const plantsWithStock = data.map(p => ({ ...p, inStock: p.inStock ?? true }));
+        setPlants(plantsWithStock)
       })
       .catch(error => console.log("Fetch request failed", error))
   }
 
   useEffect(fetchPlantList, [])
+
+  function toggleStock(id) {
+    setPlants(plants.map(plant =>
+      plant.id === id
+        ? { ...plant, inStock: !plant.inStock }
+        : plant
+    ))
+  }
 
   const filteredPlants = plants.filter(plant =>
     plant.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -32,9 +41,9 @@ function PlantPage() {
 
   return (
     <main>
-      <NewPlantForm />
+      <NewPlantForm onAddPlant={newPlant => setPlants([...plants, newPlant])} />
       <Search searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <PlantList plants={filteredPlants} />
+      <PlantList plants={filteredPlants} onToggleStock={toggleStock} />
     </main>
   );
 }
